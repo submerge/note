@@ -16,12 +16,25 @@
 				background: url(./imgs/2.jpg) no-repeat;
 				background-size: 100% 100%;
 			}
+			h1 {
+				color:#C8C5C0;
+				font-size: 50px;
+				position: relative;
+				left: -500px;
+				opacity: 0;
+			}
 		</style>
 	</head>
 
 	<body>
-		<h1>leikeas的2016</h1>
+		<h1 id="title">leikeas的2016</h1>
 		<div>
 		</div>
 	</body>
+	<script type="text/javascript" src="./move.js"></script>
+
+	<script type="text/javascript">
+		var cw = document.documentElement.clientWidth;
+		move("#title").x(500).set('opacity', 1).duration(1200).end();
+	</script>
 </html>
