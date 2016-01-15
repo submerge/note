@@ -16,25 +16,42 @@
 				background: url(./imgs/2.jpg) no-repeat;
 				background-size: 100% 100%;
 			}
-			h1 {
+			.tt {
 				color:#C8C5C0;
 				font-size: 50px;
 				position: relative;
 				left: -500px;
+				opacity: 1;
+			}
+			#capture{
+				width: 300px;
+				height: 220px;
 				opacity: 0;
+			}
+			#capture img {
+				width: 100%;
+				height: 100%;
+			}
+			#er {
+				font-size: 35px;
+				top: 120px;
 			}
 		</style>
 	</head>
 
 	<body>
-		<h1 id="title">leikeas的2016</h1>
-		<div>
+		<h1 id="title" class="tt">leikeas的2016</h1>
+		<div id="capture">
+			<img src="./imgs/1.png">
 		</div>
+		<h1 id="er" class="tt">随遇而安。。。</h1>
 	</body>
 	<script type="text/javascript" src="./move.js"></script>
 
 	<script type="text/javascript">
 		var cw = document.documentElement.clientWidth;
 		move("#title").x(500).set('opacity', 1).duration(1200).end();
+		move("#capture").delay(1200).set('opacity', 1).rotate(345).y(80).duration("2s").end();
+		move("#er").x(500).delay(3200).set('opacity', 1).duration(1200).end();
 	</script>
 </html>
