@@ -1,0 +1,162 @@
+/********************************************
+ *
+ * 文件注释，说明文件名称和文件所包含内容
+ * @file fis-module.js
+ * @author shangwenhe
+ * @create time 2015年11月26日15:09
+ * @version {版本信息}  v0.0.1
+ *
+ *********************************************/
+// default settings. fis3 release
+
+// Global start
+fis.set('static', '/browse_static/v3');
+fis.set('modulename', 'statictopic');
+fis.hook('module', {
+        mode: 'commonJS'
+    })
+    .set('project.ignore', [
+        'fis-conf.js',
+        '*.sh',
+        '*.md',
+        '*.py',
+        '*.info',
+        '*.bat',
+        'output/**',
+        'Thumbs.db',
+        'component.json',
+        'test/**'
+    ]);
+
+// ============= TMPL ======================
+fis.match('*.tmpl', {
+    parser: fis.plugin('utc'),
+    isJsLike: true,
+    release: false
+});
+fis.match(/^\/.*(png|jpg|gif)/, {
+    release: '${static}/${modulename}/${namespace}/$0'
+});
+
+
+// ============== JS ======================
+fis.match('*.js', {
+    isMod: true, // 标记为组件
+    useHash: false,
+    useMap: true,
+    release: '${static}/${modulename}/${namespace}/$0',
+    requires: (function () {
+        var name = fis.get('namespace');
+        return [
+            name + '/static/mod/mod.js'
+        ];
+    })()
+});
+
+// 手动添加保证加载顺序
+fis.match('mod.js', {
+    isMod: false, // 标记为非组件
+    packOrder: -100,
+    requires: []
+});
+
+
+// ============== less ======================
+fis.match('**.less', {
+    useHash: false,
+    parser: fis.plugin('less'),
+    release: '${static}/${modulename}/${namespace}/$0',
+    rExt: '.css',
+    requires: (function () {
+        var name = fis.get('namespace');
+        return [name + '/static/reset.less'];
+    })()
+});
+fis.match('**.css', {
+    release: '${static}/${modulename}/${namespace}/$0'
+});
+fis.match('reset.less', {
+    requires: []
+});
+
+
+
+
+// ============== html ======================
+fis.match(/^\/page\/(.*\.html)/, {
+    rExt: '.tpl',
+    release: '/browse_template_v3/${modulename}/pages/${namespace}/$1'
+});
+fis.match(/^\/widget\/(.*\.html)/, {
+    release: false
+});
+fis.match('**.md', {
+    release: false
+});
+fis.match('components/**.json', {
+    release: false
+});
+
+
+
+fis.match('::package', {
+    // npm install [-g] fis3-postpackager-loader
+    // 分析 __RESOURCE_MAP__ 结构，来解决资源加载问题
+    postpackager: fis.plugin('loader', {
+        resourceType: 'commonJs',
+        // allInOne: true,
+        useInlineMap: true // 资源映射表内嵌
+
+    })
+});
+
+
+
+// Global end
+
+// default media is `dev`
+fis.media('dev')
+    .match(/.*\.(less|css|js|png|jpg|gif)/, {
+        useHash: false,
+        release: '${namespace}/$0'
+    })
+    .match('**.html', {
+        rExt: '.html',
+        useHash: false,
+        release: '${namespace}/$0'
+    });
+
+// extends GLOBAL config
+fis.media('prod')
+    .match(/.*\.(less|css|js|png|jpg|gif)/, {
+        useHash: true,
+        domain: ['http://vs5.bdstatic.com', 'http://vs6.bdstatic.com']
+    })
+    .match('/static/**.js', {
+        optimizer: fis.plugin('uglify-js'),
+        packTo: '${static}/${modulename}/${namespace}/static/pkg_static.js'
+    })
+    .match('/components/**.js', {
+        optimizer: fis.plugin('uglify-js'),
+        packTo: '${static}/${modulename}/${namespace}/components/pkg_components.js'
+    })
+    .match('/widget/**.js', {
+        optimizer: fis.plugin('uglify-js'),
+        packTo: '${static}/${modulename}/${namespace}/widget/pkg_widget.js'
+    })
+    .match('echarts-all.js', {
+        optimizer: false
+    })
+    .match('/widget/**.less', {
+        optimizer: fis.plugin('clean-css'),
+        packTo: '${static}/${modulename}/${namespace}/static/pkg_widget.css'
+    })
+    .match('/static/**.{less,css}', {
+        optimizer: fis.plugin('clean-css'),
+        packTo: '${static}/${modulename}/${namespace}/static/pkg_static.css'
+    })
+    .match('*', {
+        deploy: fis.plugin('local-deliver', {
+            to: './output'
+        })
+    });
